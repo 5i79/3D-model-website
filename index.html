@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D别墅可视化 - 现代建筑设计展示</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/splitting@1.0.6/dist/splitting.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+            height: 100vh;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(26, 29, 41, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-family: 'ZCOOL KuaiLe', cursive;
+            font-size: 1.8rem;
+            color: #d4af37;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 300;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #d4af37;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #d4af37;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* 主容器 */
+        .main-container {
+            display: flex;
+            height: 100vh;
+            padding-top: 80px;
+        }
+
+        /* 控制面板 */
+        .control-panel {
+            width: 300px;
+            background: rgba(26, 29, 41, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-right: 1px solid rgba(212, 175, 55, 0.3);
+            overflow-y: auto;
+        }
+
+        .panel-section {
+            margin-bottom: 2rem;
+        }
+
+        .panel-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.2rem;
+            color: #d4af37;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .material-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+        }
+
+        .material-item {
+            aspect-ratio: 1;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .material-item:hover {
+            border-color: #d4af37;
+            transform: scale(1.05);
+        }
+
+        .material-item.active {
+            border-color: #d4af37;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+        }
+
+        .material-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .material-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 0.3rem;
+            font-size: 0.7rem;
+            text-align: center;
+        }
+
+        /* 3D场景容器 */
+        .scene-container {
+            flex: 1;
+            position: relative;
+            background: radial-gradient(circle at center, #1a1d29 0%, #000 100%);
+        }
+
+        #threejs-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 视角控制 */
+        .view-controls {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(26, 29, 41, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .view-btn {
+            display: block;
+            width: 100%;
+            padding: 0.8rem 1.2rem;
+            margin-bottom: 0.5rem;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .view-btn:hover {
+            background: rgba(212, 175, 55, 0.2);
+            border-color: #d4af37;
+            color: #d4af37;
+        }
+
+        .view-btn:last-child {
+            margin-bottom: 0;
+        }
+
+        /* 信息面板 */
+        .info-panel {
+            position: absolute;
+            bottom: 2rem;
+            left: 2rem;
+            background: rgba(26, 29, 41, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            max-width: 300px;
+        }
+
+        .info-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.1rem;
+            color: #d4af37;
+            margin-bottom: 0.8rem;
+        }
+
+        .info-text {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* 加载动画 */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .loading-text {
+            font-family: 'ZCOOL KuaiLe', cursive;
+            font-size: 2rem;
+            color: #d4af37;
+            margin-bottom: 2rem;
+        }
+
+        .loading-bar {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .loading-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #d4af37, #f4d03f);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* 粒子背景 */
+        .particles-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .control-panel {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                height: 200px;
+                z-index: 100;
+                padding: 1rem;
+            }
+
+            .main-container {
+                padding-bottom: 200px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .view-controls {
+                top: 1rem;
+                right: 1rem;
+                padding: 0.5rem;
+            }
+
+            .view-btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* 动画类 */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .glow {
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(212, 175, 55, 0.5);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(212, 175, 55, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <!-- 加载屏幕 -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-text">加载3D别墅模型...</div>
+        <div class="loading-bar">
+            <div class="loading-progress" id="loadingProgress"></div>
+        </div>
+    </div>
+
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">🏛️ 3D别墅可视化</a>
+            <ul class="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="gallery.html">材质库</a></li>
+                <li><a href="about.html">关于项目</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 主容器 -->
+    <div class="main-container">
+        <!-- 控制面板 -->
+        <div class="control-panel">
+            <div class="panel-section fade-in">
+                <h3 class="panel-title">🏗️ 外墙材质</h3>
+                <div class="material-grid">
+                    <div class="material-item active" data-material="concrete">
+                        <img src="https://kimi-web-img.moonshot.cn/img/hrarchz.com/429e5bf9440760a91655560c4a2fa67f8ecb0669.jpg" alt="混凝土">
+                        <div class="material-name">现代混凝土</div>
+                    </div>
+                    <div class="material-item" data-material="stone">
+                        <img src="https://kimi-web-img.moonshot.cn/img/www.luxurious-studio.com/401df237216dbc4a58f75965363ccf65b4ae771c.jpg" alt="天然石材">
+                        <div class="material-name">天然石材</div>
+                    </div>
+                    <div class="material-item" data-material="wood">
+                        <img src="https://kimi-web-img.moonshot.cn/img/ankstudio.leneurbanity.com/41f629580aaa56cc25ee9edb1ded27bbc8a842d7.webp" alt="木质饰面">
+                        <div class="material-name">木质饰面</div>
+                    </div>
+                    <div class="material-item" data-material="glass">
+                        <img src="https://kimi-web-img.moonshot.cn/img/chandelierslife.com/605cb8ab07092d0787248152b0d977bb10de9dab.jpg" alt="玻璃幕墙">
+                        <div class="material-name">玻璃幕墙</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section fade-in">
+                <h3 class="panel-title">🏠 屋顶材质</h3>
+                <div class="material-grid">
+                    <div class="material-item active" data-roof="metal">
+                        <img src="https://kimi-web-img.moonshot.cn/img/i.ytimg.com/14229eae3e96419cb36272bd9a345be746d53d68.jpg" alt="金属屋面">
+                        <div class="material-name">金属屋面</div>
+                    </div>
+                    <div class="material-item" data-roof="tiles">
+                        <img src="https://kimi-web-img.moonshot.cn/img/i.ytimg.com/a82bc08f990031aaccb92f5c4e7df0bbbb940302.jpg" alt="瓦片屋顶">
+                        <div class="material-name">瓦片屋顶</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section fade-in">
+                <h3 class="panel-title">🌅 环境设置</h3>
+                <div class="material-grid">
+                    <div class="material-item active" data-time="day">
+                        <div style="background: linear-gradient(135deg, #87CEEB, #98D8E8); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                            <span style="font-size: 2rem;">☀️</span>
+                        </div>
+                        <div class="material-name">白天</div>
+                    </div>
+                    <div class="material-item" data-time="sunset">
+                        <div style="background: linear-gradient(135deg, #FF6B6B, #4ECDC4); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                            <span style="font-size: 2rem;">🌅</span>
+                        </div>
+                        <div class="material-name">黄昏</div>
+                    </div>
+                    <div class="material-item" data-time="night">
+                        <div style="background: linear-gradient(135deg, #2C3E50, #3498DB); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                            <span style="font-size: 2rem;">🌙</span>
+                        </div>
+                        <div class="material-name">夜晚</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3D场景容器 -->
+        <div class="scene-container">
+            <canvas id="threejs-container"></canvas>
+            <div class="particles-bg" id="particlesBg"></div>
+
+            <!-- 视角控制 -->
+            <div class="view-controls fade-in">
+                <button class="view-btn" data-view="front">正面视图</button>
+                <button class="view-btn" data-view="side">侧面视图</button>
+                <button class="view-btn" data-view="top">俯视视图</button>
+                <button class="view-btn" data-view="iso">等轴视图</button>
+            </div>
+
+            <!-- 信息面板 -->
+            <div class="info-panel fade-in">
+                <h4 class="info-title">🏛️ 现代别墅设计</h4>
+                <p class="info-text">
+                    这是一座现代化的三层别墅，采用简约而不简单的设计理念。
+                    您可以通过左侧控制面板切换不同的材质和光照效果，
+                    体验不同的建筑风格和氛围。
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>

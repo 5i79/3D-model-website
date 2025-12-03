@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于项目 - 3D别墅可视化</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.0/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(26, 29, 41, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-family: 'ZCOOL KuaiLe', cursive;
+            font-size: 1.8rem;
+            color: #d4af37;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 300;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #d4af37;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #d4af37;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* 主内容 */
+        .main-content {
+            padding-top: 80px;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1d29 0%, #000 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding: 3rem 0;
+        }
+
+        .page-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 3rem;
+            color: #d4af37;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #d4af37, #f4d03f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* 内容网格 */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            margin-bottom: 4rem;
+        }
+
+        .content-card {
+            background: rgba(26, 29, 41, 0.8);
+            border-radius: 12px;
+            padding: 2.5rem;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .content-card:hover {
+            transform: translateY(-5px);
+            border-color: #d4af37;
+            box-shadow: 0 15px 35px rgba(212, 175, 55, 0.2);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .card-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.5rem;
+            color: #d4af37;
+            margin-bottom: 1rem;
+        }
+
+        .card-content {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* 项目特色 */
+        .features-section {
+            margin: 4rem 0;
+        }
+
+        .section-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 2.5rem;
+            color: #d4af37;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-item {
+            background: rgba(26, 29, 41, 0.6);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-3px);
+            border-color: #d4af37;
+            background: rgba(26, 29, 41, 0.9);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #d4af37;
+        }
+
+        .feature-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.2rem;
+            color: #d4af37;
+            margin-bottom: 0.8rem;
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.5;
+        }
+
+        /* 技术栈 */
+        .tech-section {
+            margin: 4rem 0;
+            background: rgba(26, 29, 41, 0.4);
+            border-radius: 12px;
+            padding: 3rem;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .tech-item {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .tech-item:hover {
+            border-color: #d4af37;
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .tech-name {
+            font-weight: 500;
+            color: #d4af37;
+            margin-bottom: 0.5rem;
+        }
+
+        .tech-desc {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* 统计图表 */
+        .stats-section {
+            margin: 4rem 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .stats-card {
+            background: rgba(26, 29, 41, 0.8);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .stats-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.3rem;
+            color: #d4af37;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 300px;
+        }
+
+        /* 团队介绍 */
+        .team-section {
+            margin: 4rem 0;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .team-member {
+            background: rgba(26, 29, 41, 0.8);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .team-member:hover {
+            transform: translateY(-3px);
+            border-color: #d4af37;
+        }
+
+        .member-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #d4af37, #f4d03f);
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #000;
+        }
+
+        .member-name {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.2rem;
+            color: #d4af37;
+            margin-bottom: 0.5rem;
+        }
+
+        .member-role {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 1rem;
+        }
+
+        .member-desc {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.5;
+        }
+
+        /* 联系信息 */
+        .contact-section {
+            margin: 4rem 0;
+            background: rgba(26, 29, 41, 0.4);
+            border-radius: 12px;
+            padding: 3rem;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            text-align: center;
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .contact-item {
+            padding: 1rem;
+        }
+
+        .contact-icon {
+            font-size: 2rem;
+            color: #d4af37;
+            margin-bottom: 1rem;
+        }
+
+        .contact-title {
+            font-weight: 500;
+            color: #d4af37;
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-detail {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* 页脚 */
+        .footer {
+            background: rgba(26, 29, 41, 0.9);
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .footer-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .tech-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .tech-section,
+            .contact-section {
+                padding: 2rem;
+            }
+        }
+
+        /* 动画类 */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .stagger-item {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">🏛️ 3D别墅可视化</a>
+            <ul class="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="gallery.html">材质库</a></li>
+                <li><a href="about.html">关于项目</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 主内容 -->
+    <main class="main-content">
+        <div class="container">
+            <!-- 页面标题 -->
+            <div class="page-header fade-in">
+                <h1 class="page-title">关于项目</h1>
+                <p class="page-subtitle">
+                    了解3D别墅可视化项目的技术细节、设计理念和团队背景，
+                    探索建筑可视化的无限可能。
+                </p>
+            </div>
+
+            <!-- 项目概述 -->
+            <div class="content-grid">
+                <div class="content-card fade-in">
+                    <span class="card-icon">🎯</span>
+                    <h3 class="card-title">项目目标</h3>
+                    <div class="card-content">
+                        打造一个交互式的3D别墅可视化平台，让用户能够直观地体验和定制自己的理想住宅。
+                        通过先进的Web技术和3D渲染引擎，为建筑设计提供全新的展示和交互方式。
+                    </div>
+                </div>
+
+                <div class="content-card fade-in">
+                    <span class="card-icon">💡</span>
+                    <h3 class="card-title">设计理念</h3>
+                    <div class="card-content">
+                        秉承现代简约的设计哲学，注重用户体验和视觉美感的平衡。
+                        通过直观的交互界面和流畅的动画效果，让建筑设计变得简单而有趣。
+                    </div>
+                </div>
+
+                <div class="content-card fade-in">
+                    <span class="card-icon">🚀</span>
+                    <h3 class="card-title">技术创新</h3>
+                    <div class="card-content">
+                        采用最新的WebGL技术和3D渲染引擎，实现浏览器端的高质量3D可视化。
+                        结合物理引擎和材质系统，提供逼真的光影效果和材质表现。
+                    </div>
+                </div>
+            </div>
+
+            <!-- 项目特色 -->
+            <div class="features-section fade-in">
+                <h2 class="section-title">项目特色</h2>
+                <div class="features-grid">
+                    <div class="feature-item stagger-item">
+                        <div class="feature-icon">🎮</div>
+                        <h3 class="feature-title">交互式体验</h3>
+                        <p class="feature-desc">支持360度旋转、缩放查看，实时材质切换，让用户完全掌控设计过程</p>
+                    </div>
+                    <div class="feature-item stagger-item">
+                        <div class="feature-icon">🎨</div>
+                        <h3 class="feature-title">丰富材质库</h3>
+                        <p class="feature-desc">提供多种高质量建筑材质，包括外墙、屋顶、室内等不同类型的材料选择</p>
+                    </div>
+                    <div class="feature-item stagger-item">
+                        <div class="feature-icon">☀️</div>
+                        <h3 class="feature-title">动态光照</h3>
+                        <p class="feature-desc">支持不同时间段的光照效果，从清晨到夜晚，展现建筑在不同光线下的美感</p>
+                    </div>
+                    <div class="feature-item stagger-item">
+                        <div class="feature-icon">📱</div>
+                        <h3 class="feature-title">跨平台支持</h3>
+                        <p class="feature-desc">完美适配桌面端和移动端，随时随地都能享受3D可视化的乐趣</p>
+                    </div>
+                    <div class="feature-item stagger-item">
+                        <div class="feature-icon">⚡</div>
+                        <h3 class="feature-title">高性能渲染</h3>
+                        <p class="feature-desc">优化的渲染管线，确保流畅的交互体验，即使在移动设备上也能稳定运行</p>
+                    </div>
+                    <div class="feature-item stagger-item">
+                        <div class="feature-icon">🔧</div>
+                        <h3 class="feature-title">易于扩展</h3>
+                        <p class="feature-desc">模块化的架构设计，便于添加新的功能和材质，满足不断变化的需求</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 技术栈 -->
+            <div class="tech-section fade-in">
+                <h2 class="section-title">技术实现</h2>
+                <p style="text-align: center; color: rgba(255,255,255,0.8); margin-bottom: 2rem;">
+                    项目采用现代化的技术栈，确保高性能和良好的用户体验
+                </p>
+                <div class="tech-grid">
+                    <div class="tech-item">
+                        <div class="tech-name">Three.js</div>
+                        <div class="tech-desc">3D场景构建和渲染</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-name">WebGL</div>
+                        <div class="tech-desc">硬件加速的图形渲染</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-name">Anime.js</div>
+                        <div class="tech-desc">流畅的动画效果</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-name">ECharts</div>
+                        <div class="tech-desc">数据可视化图表</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-name">HTML5/CSS3</div>
+                        <div class="tech-desc">现代化的网页标准</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-name">JavaScript ES6+</div>
+                        <div class="tech-desc">现代化的脚本语言</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 统计数据 -->
+            <div class="stats-section fade-in">
+                <h2 class="section-title">项目数据</h2>
+                <div class="stats-grid">
+                    <div class="stats-card">
+                        <h3 class="stats-title">材质类型分布</h3>
+                        <div class="chart-container" id="materialChart"></div>
+                    </div>
+                    <div class="stats-card">
+                        <h3 class="stats-title">用户交互统计</h3>
+                        <div class="chart-container" id="interactionChart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 团队介绍 -->
+            <div class="team-section fade-in">
+                <h2 class="section-title">开发团队</h2>
+                <div class="team-grid">
+                    <div class="team-member stagger-item">
+                        <div class="member-avatar">👨‍💻</div>
+                        <h3 class="member-name">张设计师</h3>
+                        <div class="member-role">项目总监 & 架构师</div>
+                        <div class="member-desc">
+                            拥有10年建筑设计经验，专注于3D可视化技术和用户体验设计，
+                            负责项目的整体架构和技术选型。
+                        </div>
+                    </div>
+                    <div class="team-member stagger-item">
+                        <div class="member-avatar">👩‍🎨</div>
+                        <h3 class="member-name">李美术</h3>
+                        <div class="member-role">UI/UX设计师</div>
+                        <div class="member-desc">
+                            资深视觉设计师，擅长现代简约风格设计，
+                            负责项目的视觉设计和用户界面优化。
+                        </div>
+                    </div>
+                    <div class="team-member stagger-item">
+                        <div class="member-avatar">👨‍🔬</div>
+                        <h3 class="member-name">王工程师</h3>
+                        <div class="member-role">前端开发工程师</div>
+                        <div class="member-desc">
+                            前端技术专家，精通3D渲染和动画效果，
+                            负责项目的核心功能开发和性能优化。
+                        </div>
+                    </div>
+                    <div class="team-member stagger-item">
+                        <div class="member-avatar">👩‍💼</div>
+                        <h3 class="member-name">陈经理</h3>
+                        <div class="member-role">产品经理</div>
+                        <div class="member-desc">
+                            产品设计和用户体验专家，
+                            负责项目的需求分析和用户体验设计。
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 联系信息 -->
+            <div class="contact-section fade-in">
+                <h2 class="section-title">联系我们</h2>
+                <p style="color: rgba(255,255,255,0.8); margin-bottom: 2rem;">
+                    如果您对项目有任何疑问或建议，欢迎随时与我们联系
+                </p>
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <div class="contact-icon">📧</div>
+                        <div class="contact-title">邮箱</div>
+                        <div class="contact-detail">contact@3dvilla.com</div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">📱</div>
+                        <div class="contact-title">电话</div>
+                        <div class="contact-detail">+86 400-123-4567</div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">🌐</div>
+                        <div class="contact-title">官网</div>
+                        <div class="contact-detail">www.3dvilla.com</div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">📍</div>
+                        <div class="contact-title">地址</div>
+                        <div class="contact-detail">北京市朝阳区设计园区</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p class="footer-text">© 2024 3D别墅可视化项目 - 探索建筑美学的无限可能</p>
+    </footer>
+
+    <script>
+        // 页面加载动画
+        document.addEventListener('DOMContentLoaded', () => {
+            // 淡入动画
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+
+            // 交错动画
+            anime({
+                targets: '.stagger-item',
+                opacity: [0, 1],
+                translateY: [20, 0],
+                delay: anime.stagger(100),
+                duration: 600,
+                easing: 'easeOutQuad'
+            });
+
+            // 初始化图表
+            initCharts();
+        });
+
+        function initCharts() {
+            // 材质类型分布图表
+            const materialChart = echarts.init(document.getElementById('materialChart'));
+            const materialOption = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item',
+                    backgroundColor: 'rgba(26, 29, 41, 0.9)',
+                    borderColor: '#d4af37',
+                    textStyle: {
+                        color: '#fff'
+                    }
+                },
+                series: [{
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    center: ['50%', '50%'],
+                    data: [
+                        { value: 35, name: '外墙材质', itemStyle: { color: '#d4af37' } },
+                        { value: 25, name: '屋顶材质', itemStyle: { color: '#f4d03f' } },
+                        { value: 20, name: '室内材质', itemStyle: { color: '#cd853f' } },
+                        { value: 20, name: '地面材质', itemStyle: { color: '#b8860b' } }
+                    ],
+                    label: {
+                        color: '#fff',
+                        fontSize: 12
+                    },
+                    labelLine: {
+                        lineStyle: {
+                            color: '#d4af37'
+                        }
+                    }
+                }]
+            };
+            materialChart.setOption(materialOption);
+
+            // 用户交互统计图表
+            const interactionChart = echarts.init(document.getElementById('interactionChart'));
+            const interactionOption = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(26, 29, 41, 0.9)',
+                    borderColor: '#d4af37',
+                    textStyle: {
+                        color: '#fff'
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['材质切换', '视角旋转', '缩放查看', '环境设置', '分享功能'],
+                    axisLine: {
+                        lineStyle: {
+                            color: '#d4af37'
+                        }
+                    },
+                    axisLabel: {
+                        color: '#fff',
+                        fontSize: 10
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: {
+                        lineStyle: {
+                            color: '#d4af37'
+                        }
+                    },
+                    axisLabel: {
+                        color: '#fff'
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(212, 175, 55, 0.2)'
+                        }
+                    }
+                },
+                series: [{
+                    data: [850, 1200, 750, 450, 320],
+                    type: 'bar',
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#d4af37' },
+                            { offset: 1, color: '#f4d03f' }
+                        ])
+                    },
+                    barWidth: '60%'
+                }]
+            };
+            interactionChart.setOption(interactionOption);
+
+            // 响应式调整
+            window.addEventListener('resize', () => {
+                materialChart.resize();
+                interactionChart.resize();
+            });
+        }
+    </script>
+</body>
+</html>

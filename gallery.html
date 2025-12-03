@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>材质库 - 3D别墅可视化</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(26, 29, 41, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-family: 'ZCOOL KuaiLe', cursive;
+            font-size: 1.8rem;
+            color: #d4af37;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 300;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #d4af37;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #d4af37;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* 主内容 */
+        .main-content {
+            padding-top: 80px;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1d29 0%, #000 100%);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding: 3rem 0;
+        }
+
+        .page-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 3rem;
+            color: #d4af37;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #d4af37, #f4d03f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* 材质分类 */
+        .material-categories {
+            margin-bottom: 3rem;
+        }
+
+        .category-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .category-tab {
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 25px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .category-tab:hover,
+        .category-tab.active {
+            background: rgba(212, 175, 55, 0.2);
+            border-color: #d4af37;
+            color: #d4af37;
+            transform: translateY(-2px);
+        }
+
+        /* 材质网格 */
+        .materials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .material-card {
+            background: rgba(26, 29, 41, 0.8);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .material-card:hover {
+            transform: translateY(-5px);
+            border-color: #d4af37;
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
+        }
+
+        .material-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .material-card:hover .material-image {
+            transform: scale(1.05);
+        }
+
+        .material-info {
+            padding: 1.5rem;
+        }
+
+        .material-name {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.3rem;
+            color: #d4af37;
+            margin-bottom: 0.5rem;
+        }
+
+        .material-description {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .material-specs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .spec-tag {
+            padding: 0.3rem 0.8rem;
+            background: rgba(212, 175, 55, 0.2);
+            border-radius: 15px;
+            font-size: 0.8rem;
+            color: #d4af37;
+        }
+
+        .material-price {
+            font-size: 1.1rem;
+            color: #d4af37;
+            font-weight: 500;
+        }
+
+        /* 轮播图 */
+        .carousel-section {
+            margin: 4rem 0;
+        }
+
+        .section-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 2rem;
+            color: #d4af37;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .splide__slide img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        .splide__arrow {
+            background: rgba(212, 175, 55, 0.8);
+            border-radius: 50%;
+        }
+
+        .splide__arrow:hover {
+            background: #d4af37;
+        }
+
+        /* 特色材质 */
+        .featured-materials {
+            margin: 4rem 0;
+        }
+
+        .featured-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .featured-item {
+            background: rgba(26, 29, 41, 0.8);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .featured-item:hover {
+            transform: translateY(-3px);
+            border-color: #d4af37;
+        }
+
+        .featured-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .featured-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.2rem;
+            color: #d4af37;
+            margin-bottom: 0.5rem;
+        }
+
+        .featured-desc {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* 页脚 */
+        .footer {
+            background: rgba(26, 29, 41, 0.9);
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .footer-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .materials-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .category-tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+
+        /* 动画类 */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .stagger-item {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">🏛️ 3D别墅可视化</a>
+            <ul class="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="gallery.html">材质库</a></li>
+                <li><a href="about.html">关于项目</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 主内容 -->
+    <main class="main-content">
+        <div class="container">
+            <!-- 页面标题 -->
+            <div class="page-header fade-in">
+                <h1 class="page-title">建筑材质库</h1>
+                <p class="page-subtitle">
+                    探索各种高品质建筑材质，为您的别墅设计提供灵感和选择。
+                    每种材质都经过精心挑选，确保最佳的视觉效果和实用性。
+                </p>
+            </div>
+
+            <!-- 材质分类 -->
+            <div class="material-categories fade-in">
+                <div class="category-tabs">
+                    <div class="category-tab active" data-category="all">全部材质</div>
+                    <div class="category-tab" data-category="exterior">外墙材质</div>
+                    <div class="category-tab" data-category="roof">屋顶材质</div>
+                    <div class="category-tab" data-category="interior">室内材质</div>
+                    <div class="category-tab" data-category="floor">地面材质</div>
+                </div>
+
+                <!-- 材质网格 -->
+                <div class="materials-grid" id="materialsGrid">
+                    <!-- 外墙材质 -->
+                    <div class="material-card stagger-item" data-category="exterior">
+                        <img src="https://kimi-web-img.moonshot.cn/img/hrarchz.com/429e5bf9440760a91655560c4a2fa67f8ecb0669.jpg" alt="现代混凝土" class="material-image">
+                        <div class="material-info">
+                            <h3 class="material-name">现代混凝土</h3>
+                            <p class="material-description">
+                                采用高性能混凝土材料，具有优异的耐久性和现代感。
+                                表面可做多种纹理处理，适合现代简约风格建筑。
+                            </p>
+                            <div class="material-specs">
+                                <span class="spec-tag">耐久性强</span>
+                                <span class="spec-tag">现代感</span>
+                                <span class="spec-tag">易维护</span>
+                            </div>
+                            <div class="material-price">¥280-450/㎡</div>
+                        </div>
+                    </div>
+
+                    <div class="material-card stagger-item" data-category="exterior">
+                        <img src="https://kimi-web-img.moonshot.cn/img/www.luxurious-studio.com/401df237216dbc4a58f75965363ccf65b4ae771c.jpg" alt="天然石材" class="material-image">
+                        <div class="material-info">
+                            <h3 class="material-name">天然石材</h3>
+                            <p class="material-description">
+                                精选优质花岗岩和大理石，质感自然高贵，
+                                每块石材都有独特的纹理，彰显奢华品质。
+                            </p>
+                            <div class="material-specs">
+                                <span class="spec-tag">天然纹理</span>
+                                <span class="spec-tag">奢华质感</span>
+                                <span class="spec-tag">保值性强</span>
+                            </div>
+                            <div class="material-price">¥800-1500/㎡</div>
+                        </div>
+                    </div>
+
+                    <div class="material-card stagger-item" data-category="exterior">
+                        <img src="https://kimi-web-img.moonshot.cn/img/ankstudio.leneurbanity.com/41f629580aaa56cc25ee9edb1ded27bbc8a842d7.webp" alt="木质饰面" class="material-image">
+                        <div class="material-info">
+                            <h3 class="material-name">木质饰面</h3>
+                            <p class="material-description">
+                                采用环保防腐木材，经过特殊处理后具有优异的防水防腐性能，
+                                营造温馨自然的居住氛围。
+                            </p>
+                            <div class="material-specs">
+                                <span class="spec-tag">环保材料</span>
+                                <span class="spec-tag">温馨质感</span>
+                                <span class="spec-tag">防腐处理</span>
+                            </div>
+                            <div class="material-price">¥350-600/㎡</div>
+                        </div>
+                    </div>
+
+                    <div class="material-card stagger-item" data-category="exterior">
+                        <img src="https://kimi-web-img.moonshot.cn/img/chandelierslife.com/605cb8ab07092d0787248152b0d977bb10de9dab.jpg" alt="玻璃幕墙" class="material-image">
+                        <div class="material-info">
+                            <h3 class="material-name">玻璃幕墙</h3>
+                            <p class="material-description">
+                                双层中空钢化玻璃，具有优异的隔热隔音效果，
+                                现代感强烈，采光效果极佳。
+                            </p>
+                            <div class="material-specs">
+                                <span class="spec-tag">采光好</span>
+                                <span class="spec-tag">隔热隔音</span>
+                                <span class="spec-tag">现代感</span>
+                            </div>
+                            <div class="material-price">¥1200-2000/㎡</div>
+                        </div>
+                    </div>
+
+                    <!-- 屋顶材质 -->
+                    <div class="material-card stagger-item" data-category="roof">
+                        <img src="https://kimi-web-img.moonshot.cn/img/i.ytimg.com/14229eae3e96419cb36272bd9a345be746d53d68.jpg" alt="金属屋面" class="material-image">
+                        <div class="material-info">
+                            <h3 class="material-name">金属屋面</h3>
+                            <p class="material-description">
+                                采用高品质铝合金材料，轻质高强，耐腐蚀性强，
+                                安装简便，使用寿命长。
+                            </p>
+                            <div class="material-specs">
+                                <span class="spec-tag">轻质高强</span>
+                                <span class="spec-tag">耐腐蚀</span>
+                                <span class="spec-tag">寿命长</span>
+                            </div>
+                            <div class="material-price">¥180-350/㎡</div>
+                        </div>
+                    </div>
+
+                    <div class="material-card stagger-item" data-category="roof">
+                        <img src="https://kimi-web-img.moonshot.cn/img/i.ytimg.com/a82bc08f990031aaccb92f5c4e7df0bbbb940302.jpg" alt="瓦片屋顶" class="material-image">
+                        <div class="material-info">
+                            <h3 class="material-name">瓦片屋顶</h3>
+                            <p class="material-description">
+                                传统陶瓦与现代工艺结合，色彩丰富多样，
+                                具有良好的防水性能和装饰效果。
+                            </p>
+                            <div class="material-specs">
+                                <span class="spec-tag">传统风格</span>
+                                <span class="spec-tag">色彩丰富</span>
+                                <span class="spec-tag">防水性好</span>
+                            </div>
+                            <div class="material-price">¥120-280/㎡</div>
+                        </div>
+                    </div>
+
+                    <!-- 室内材质 -->
+                    <div class="material-card stagger-item" data-category="interior">
+                        <img src="https://kimi-web-img.moonshot.cn/img/images.adsttc.com/7d373d3b4b94599e2f8076c64c5e16fe1f6d18e9.jpg" alt="大理石内饰" class="material-image">
+                        <div class="material-info">
+                            <h3 class="material-name">大理石内饰</h3>
+                            <p class="material-description">
+                                进口天然大理石，纹理优美，质感温润，
+                                适用于客厅、浴室等高端空间装饰。
+                            </p>
+                            <div class="material-specs">
+                                <span class="spec-tag">天然纹理</span>
+                                <span class="spec-tag">高端质感</span>
+                                <span class="spec-tag">易清洁</span>
+                            </div>
+                            <div class="material-price">¥600-1200/㎡</div>
+                        </div>
+                    </div>
+
+                    <div class="material-card stagger-item" data-category="interior">
+                        <img src="https://kimi-web-img.moonshot.cn/img/static.vecteezy.com/5c32aef1f216e4d0c9db8f9c6c7d9f1f7e8b2c3d.jpg" alt="木质地板" class="material-image">
+                        <div class="material-info">
+                            <h3 class="material-name">实木地板</h3>
+                            <p class="material-description">
+                                优质实木材料，脚感舒适，保温性能好，
+                                营造温馨自然的室内环境。
+                            </p>
+                            <div class="material-specs">
+                                <span class="spec-tag">脚感舒适</span>
+                                <span class="spec-tag">保温性好</span>
+                                <span class="spec-tag">环保材料</span>
+                            </div>
+                            <div class="material-price">¥400-800/㎡</div>
+                        </div>
+                    </div>
+
+                    <!-- 地面材质 -->
+                    <div class="material-card stagger-item" data-category="floor">
+                        <img src="https://kimi-web-img.moonshot.cn/img/img.freepik.com/8a9b2c3d4e5f6789abcdef0123456789.jpg" alt="瓷砖地面" class="material-image">
+                        <div class="material-info">
+                            <h3 class="material-name">瓷砖地面</h3>
+                            <p class="material-description">
+                                高品质瓷砖，花色多样，耐磨耐用，
+                                适用于厨房、卫生间等湿区空间。
+                            </p>
+                            <div class="material-specs">
+                                <span class="spec-tag">耐磨耐用</span>
+                                <span class="spec-tag">花色多样</span>
+                                <span class="spec-tag">防水防滑</span>
+                            </div>
+                            <div class="material-price">¥150-400/㎡</div>
+                        </div>
+                    </div>
+
+                    <div class="material-card stagger-item" data-category="floor">
+                        <img src="https://kimi-web-img.moonshot.cn/img/www.ceramichegres.com/9f8e7d6c5b4a3210fedcba9876543210.jpg" alt="仿古砖" class="material-image">
+                        <div class="material-info">
+                            <h3 class="material-name">仿古砖</h3>
+                            <p class="material-description">
+                                复古风格的瓷砖产品，色彩沉稳，质感独特，
+                                适合营造古典雅致的室内氛围。
+                            </p>
+                            <div class="material-specs">
+                                <span class="spec-tag">复古风格</span>
+                                <span class="spec-tag">色彩沉稳</span>
+                                <span class="spec-tag">防滑耐磨</span>
+                            </div>
+                            <div class="material-price">¥200-500/㎡</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 轮播图展示 -->
+            <div class="carousel-section fade-in">
+                <h2 class="section-title">精选案例展示</h2>
+                <div class="splide" id="materials-carousel">
+                    <div class="splide__track">
+                        <ul class="splide__list">
+                            <li class="splide__slide">
+                                <img src="https://kimi-web-img.moonshot.cn/img/www.luxuryabode.com/1a2b3c4d5e6f7890abcdef1234567890.jpg" alt="豪华别墅案例1">
+                            </li>
+                            <li class="splide__slide">
+                                <img src="https://kimi-web-img.moonshot.cn/img/cdn.home-designing.com/9f8e7d6c5b4a3210fedcba9876543210.jpg" alt="豪华别墅案例2">
+                            </li>
+                            <li class="splide__slide">
+                                <img src="https://kimi-web-img.moonshot.cn/img/images.squarespace-cdn.com/8a9b2c3d4e5f6789abcdef0123456789.jpg" alt="豪华别墅案例3">
+                            </li>
+                            <li class="splide__slide">
+                                <img src="https://kimi-web-img.moonshot.cn/img/www.architecturepressrelease.com/7d6e5f4c3b2a1908fedcba9876543210.jpg" alt="豪华别墅案例4">
+                            </li>
+                            <li class="splide__slide">
+                                <img src="https://kimi-web-img.moonshot.cn/img/cdn.vox-cdn.com/6f5e4d3c2b1a0987fedcba9876543210.jpg" alt="豪华别墅案例5">
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 特色材质 -->
+            <div class="featured-materials fade-in">
+                <h2 class="section-title">特色材质推荐</h2>
+                <div class="featured-grid">
+                    <div class="featured-item">
+                        <div class="featured-icon">🏛️</div>
+                        <h3 class="featured-title">古典石材</h3>
+                        <p class="featured-desc">传承古典建筑美学，打造永恒的经典之作</p>
+                    </div>
+                    <div class="featured-item">
+                        <div class="featured-icon">🌿</div>
+                        <h3 class="featured-title">环保木材</h3>
+                        <p class="featured-desc">可持续发展的绿色建材，自然与现代的完美融合</p>
+                    </div>
+                    <div class="featured-item">
+                        <div class="featured-icon">✨</div>
+                        <h3 class="featured-title">智能玻璃</h3>
+                        <p class="featured-desc">调光隔热一体化，科技感十足的未来建材</p>
+                    </div>
+                    <div class="featured-item">
+                        <div class="featured-icon">🔥</div>
+                        <h3 class="featured-title">耐火材料</h3>
+                        <p class="featured-desc">安全性能卓越，为家居安全保驾护航</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p class="footer-text">© 2024 3D别墅可视化项目 - 探索建筑美学的无限可能</p>
+    </footer>
+
+    <script>
+        // 页面加载动画
+        document.addEventListener('DOMContentLoaded', () => {
+            // 淡入动画
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+
+            // 交错动画
+            anime({
+                targets: '.stagger-item',
+                opacity: [0, 1],
+                translateY: [20, 0],
+                delay: anime.stagger(100),
+                duration: 600,
+                easing: 'easeOutQuad'
+            });
+
+            // 分类标签切换
+            const categoryTabs = document.querySelectorAll('.category-tab');
+            const materialCards = document.querySelectorAll('.material-card');
+
+            categoryTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // 更新标签状态
+                    categoryTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    const category = tab.dataset.category;
+                    
+                    // 过滤材质卡片
+                    materialCards.forEach(card => {
+                        if (category === 'all' || card.dataset.category === category) {
+                            card.style.display = 'block';
+                            anime({
+                                targets: card,
+                                opacity: [0, 1],
+                                scale: [0.8, 1],
+                                duration: 400,
+                                easing: 'easeOutQuad'
+                            });
+                        } else {
+                            anime({
+                                targets: card,
+                                opacity: [1, 0],
+                                scale: [1, 0.8],
+                                duration: 200,
+                                easing: 'easeInQuad',
+                                complete: () => {
+                                    card.style.display = 'none';
+                                }
+                            });
+                        }
+                    });
+                });
+            });
+
+            // 初始化轮播图
+            new Splide('#materials-carousel', {
+                type: 'loop',
+                perPage: 3,
+                perMove: 1,
+                gap: '2rem',
+                autoplay: true,
+                interval: 4000,
+                pauseOnHover: true,
+                breakpoints: {
+                    768: {
+                        perPage: 1,
+                        gap: '1rem'
+                    }
+                }
+            }).mount();
+
+            // 材质卡片悬停效果
+            document.querySelectorAll('.material-card').forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    anime({
+                        targets: card,
+                        scale: 1.02,
+                        duration: 200,
+                        easing: 'easeOutQuad'
+                    });
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    anime({
+                        targets: card,
+                        scale: 1,
+                        duration: 200,
+                        easing: 'easeOutQuad'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
